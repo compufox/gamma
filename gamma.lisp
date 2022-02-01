@@ -2,6 +2,8 @@
 
 (in-package #:gamma)
 
+(defvar *root-dir* "."
+  "default folder to look for generating files")
 (defvar *config* "site.conf"
   "default config name")
 (defvar *output-dir* "_site"
@@ -30,6 +32,12 @@
      :description "DIRECTORY to output html into (defaults to _site)"
      :short #\o
      :long "out"
+     :arg-parse #'identity
+     :meta-var "DIRECTORY")
+  (:name :root-dir         
+     :description "root DIRECTORY for the site"
+     :short #\f
+     :long "root"
      :arg-parse #'identity
      :meta-var "DIRECTORY"))
 
@@ -86,6 +94,8 @@
     (when (getf options :config-file)
       (setf *config* (getf options :config-file)))
 
+    (when (getf options :root-dir)
+      (setf *root-dir* (getf options :root-dir)))
     
     (when (getf options :output-dir)
       (setf *output-dir* (getf options :output-dir))))
