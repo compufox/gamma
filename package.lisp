@@ -1,5 +1,5 @@
 ;;;; package.lisp
 
 (defpackage #:gamma
-  (:use #:cl)
+  (:use #:cl #:with-user-abort)
   (:export #:main))
