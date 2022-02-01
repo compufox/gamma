@@ -36,7 +36,7 @@
      :meta-var "DIRECTORY")
   (:name :root-dir         
      :description "root DIRECTORY for the site"
-     :short #\f
+     :short #\r
      :long "root"
      :arg-parse #'identity
      :meta-var "DIRECTORY"))
@@ -82,6 +82,7 @@
 
 (defun main ()
   (multiple-value-bind (options free-args) (opts:get-opts)
+    (format t "~S~%" options)
     (when (getf options :help)
       (opts:describe :prefix "generates static HTML from markdown files"
                      :usage-of "gamma")
