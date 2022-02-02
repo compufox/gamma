@@ -51,6 +51,7 @@
      :long "check-underscore"))
 
 (defun walk-directory-and-generate-html (path)
+  "recurse thru all dirs in PATH and generate HTML based off of any files found"
   (uiop:with-current-directory ((pathify path))
     (when (uiop:file-exists-p *config*)
       (conf:load-config *config*))
@@ -67,6 +68,7 @@
     ;; create our output directory
     (ensure-directories-exist *output-dir*)
 
+    ;; collect all subdirs and files and prepare to compile them
     (let* ((dirs (list* "." (site-dirs "." :ignore (remove-if #'null
                                                               (list* *output-dir*
                                                                      *static-dir*
@@ -90,7 +92,8 @@
       (copy-directory *static-dir* *output-dir*))))
 
 (defun main ()
-  (multiple-value-bind (options) (opts:get-opts)
+  "binary entry point. parses command line arguments and calls logic function"
+  (let ((options (opts:get-opts)))
     (when (getf options :help)
       (opts:describe :prefix "generates static HTML from markdown files"
                      :usage-of "gamma")
@@ -113,4 +116,3 @@
       (setf *output-dir* (getf options :output-dir))))
   
   (walk-directory-and-generate-html *root-dir*))
-
