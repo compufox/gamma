@@ -6,6 +6,8 @@
   "default folder to look for generating files")
 (defvar *config* "site.conf"
   "default config name")
+(defvar *template-dir* "_templates"
+  "default directory for templates")
 (defvar *output-dir* "_site"
   "default output directory")
 (defvar *templates* (make-hash-table :test 'equal)
@@ -50,8 +52,8 @@
           *output-dir* (pathify *output-dir*))
   
     ;; loads and compiles all of our tempaltes
-    (when (conf:config :template-dir)
-      (loop :for f :in (uiop:directory-files (conf:config :template-dir))
+    (when (or (conf:config :template-dir) (uiop:directory-exists-p *template-dir*))
+      (loop :for f :in (uiop:directory-files (conf:config :template-dir *template-dir*))
             :do (setf (gethash (pathname-name f) *templates*)
                       (cl-template:compile-template (str:from-file f)))))
 
@@ -61,7 +63,7 @@
     (let* ((dirs (list* "." (site-dirs "." :ignore (remove-if #'null
                                                               (list* *output-dir*
                                                                      *static-dir*
-                                                                     (conf:config :template-dir)
+                                                                     (conf:config :template-dir *template-dir*)
                                                                      (conf:config :ignore-dirs))))))
            (files (alexandria:flatten (loop :for dir :in dirs
                                             :do (ensure-directories-exist (merge-pathnames (make-relative-path dir)

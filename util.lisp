@@ -26,10 +26,11 @@
         :do (uiop:copy-file file (merge-pathnames (make-relative-path file :root-dir from) (pathify to)))))
 
 (defun site-dirs (root-dir &key ignore)
-  "returns a list of all subdirectories under ROOT-DIR
+  "returns a list of all subdirectories under ROOT-DIR. does not return any folder starting with _
 
 IGNORE is a list of strings containing directories that the walker should NOT catalog"
-  (let ((dirs (remove-if #'(lambda (x) (member (make-relative-path x) (mapcar #'pathify ignore) :test #'string=))
+  (let ((dirs (remove-if #'(lambda (x) (or (member (make-relative-path x) (mapcar #'pathify ignore) :test #'string=)
+                                           (str:starts-with-p "_" (namestring (make-relative-path x :root-dir root-dir)))))
                          (uiop:subdirectories root-dir))))
     (alexandria:flatten (list dirs (mapcar #'(lambda (d) (site-dirs d :ignore ignore)) dirs)))))
 
