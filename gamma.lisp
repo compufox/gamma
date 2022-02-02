@@ -21,25 +21,26 @@
      :short #\h
      :long "help")
     (:name :config-file
-     :description "config file to load (defaults to site.conf)"
+     :description "config file FILE to load (defaults to site.conf)"
      :short #\c
      :long "config"
-     :arg-parse #'identity)
+     :meta-var "FILE"
+     :arg-parser #'identity)
     (:name :version
      :description "prints the application version"
      :long "version")
     (:name :output-dir
-     :description "DIRECTORY to output html into (defaults to _site)"
+     :description "directory DIR to output html into (defaults to _site)"
      :short #\o
      :long "out"
-     :arg-parse #'identity
-     :meta-var "DIRECTORY")
+     :arg-parser #'identity
+     :meta-var "DIR")
   (:name :root-dir         
-     :description "root DIRECTORY for the site"
+     :description "root directory DIR for the site"
      :short #\r
      :long "root"
-     :arg-parse #'identity
-     :meta-var "DIRECTORY"))
+     :arg-parser #'identity
+     :meta-var "DIR"))
 
 (defun walk-directory-and-generate-html (path)
   (uiop:with-current-directory ((pathify path))
@@ -71,7 +72,6 @@
                        (output-path (merge-pathnames (change-extension (make-relative-path file) "html")
                                                      *output-dir*))
                        (templ-func (gethash (getf parsed-output :template) *templates* *default-template*)))
-                  (format t "~S" (getf parsed-output :template))
                   (str:to-file output-path (funcall templ-func parsed-output)
                                :if-exists :overwrite))))
 
@@ -81,8 +81,7 @@
       (copy-directory *static-dir* *output-dir*))))
 
 (defun main ()
-  (multiple-value-bind (options free-args) (opts:get-opts)
-    (format t "~S~%" options)
+  (multiple-value-bind (options) (opts:get-opts)
     (when (getf options :help)
       (opts:describe :prefix "generates static HTML from markdown files"
                      :usage-of "gamma")
