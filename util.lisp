@@ -30,7 +30,8 @@
 
 IGNORE is a list of strings containing directories that the walker should NOT catalog"
   (let ((dirs (remove-if #'(lambda (x) (or (member (make-relative-path x) (mapcar #'pathify ignore) :test #'string=)
-                                           (str:starts-with-p "_" (namestring (make-relative-path x :root-dir root-dir)))))
+                                           (and (not *check-dirs-with-underscores*)
+                                                (str:starts-with-p "_" (namestring (make-relative-path x :root-dir root-dir))))))
                          (uiop:subdirectories root-dir))))
     (alexandria:flatten (list dirs (mapcar #'(lambda (d) (site-dirs d :ignore ignore)) dirs)))))
 

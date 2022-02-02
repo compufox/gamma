@@ -16,6 +16,8 @@
   "a basic HTML template")
 (defvar *static-dir* nil
   "folder that holds static assets - set via config file")
+(defvar *check-dirs-with-underscores* nil
+  "if non-nil, will walk directories for markdown if the dirname starts with _")
 
 (opts:define-opts
     (:name :help
@@ -37,16 +39,21 @@
      :long "out"
      :arg-parser #'identity
      :meta-var "DIR")
-  (:name :root-dir         
+    (:name :root-dir         
      :description "root directory DIR for the site"
      :short #\r
      :long "root"
      :arg-parser #'identity
-     :meta-var "DIR"))
+     :meta-var "DIR")
+    (:name :check-underscore-dirs
+     :description "if present, check any directories with a leading underscore"
+     :short #\u
+     :long "check-underscore"))
 
 (defun walk-directory-and-generate-html (path)
   (uiop:with-current-directory ((pathify path))
-    (conf:load-config *config*)
+    (when (uiop:file-exists-p *config*)
+      (conf:load-config *config*))
 
     (setf *static-dir* (conf:config :static-dir)
           *output-dir* (pathify *output-dir*))
@@ -92,6 +99,9 @@
     (when (getf options :version)
       (format t "gamma v~A~&" #.(asdf:component-version (asdf:find-system :gamma)))
       (opts:exit 0))
+
+    (when (getf options :check-underscore-dirs)
+      (setf *check-dirs-with-underscores* (getf options :check-underscore-dirs)))
 
     (when (getf options :config-file)
       (setf *config* (getf options :config-file)))
